@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Code Reviewer</title>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      width: 80%;
+      max-width: 1200px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .left, .right {
+      padding: 20px;
+      width: 50%;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .left {
+      background-color: #f9f9f9;
+      border-right: 2px solid #ddd;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+      border: 2px solid #ddd;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: none;
+      background-color: #fafafa;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #reviewOutput {
+      white-space: pre-wrap;
+      background-color: #fafafa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .username {
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="left">
+      <div class="profile-section">
+        <!-- Dynamically set the src attribute with the base64 string -->
+
+        <img src="<%= decoded.photoPath %>" alt="Profile Photo" class="profile-photo">
+        <div class="username">
+        <p>Welcome, <%= decoded.username %>!</p>
+      
+        </div>
+      </div>
+      <h2>Enter Your Code</h2>
+      <textarea id="codeInput" placeholder="Write your code here..."></textarea>
+      <button onclick="reviewCode()">Review Code</button>
+    </div>
+
+    <div class="right">
+      <h2>AI Review Output</h2>
+      <div id="reviewOutput">AI feedback will appear here...</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+
+  <script>
+    async function reviewCode() {
+      const code = document.getElementById('codeInput').value;
+      if (!code.trim()) {
+        alert("Please enter some code to review.");
+        return;
+      }
+
+      document.getElementById('reviewOutput').innerText = "Reviewing code...";
+
+      try {
+        const response = await fetch('/ai/get-review', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ code })
+        });
+
+        const text = await response.text();
+        document.getElementById('reviewOutput').innerHTML = text;
+        Prism.highlightAll();
+      } catch (error) {
+        document.getElementById('reviewOutput').innerText = "Error reviewing code: " + error.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
